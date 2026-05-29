@@ -6,18 +6,19 @@
   <title>划船机八方案键盘动画原型</title>
   <style>
     :root {
-      --ink: #17202a;
-      --muted: #657286;
-      --paper: #f2eadb;
+      --ink: #172033;
+      --muted: #718098;
+      --paper: #f6f0e3;
       --panel: #fffaf0;
-      --line: #d8cebd;
-      --dark: #202733;
-      --red: #df5148;
-      --amber: #f2a93b;
-      --green: #2fa66a;
-      --blue: #287fc3;
-      --cyan: #21a1ae;
-      --violet: #7b61a8;
+      --line: #d9cdb7;
+      --dark: #151c28;
+      --red: #e14f44;
+      --amber: #f3aa32;
+      --green: #31ad6d;
+      --blue: #247cc7;
+      --cyan: #19a5b2;
+      --violet: #7b5fb2;
+      --shadow: 0 24px 70px rgba(22, 32, 51, .22);
     }
 
     * { box-sizing: border-box; }
@@ -26,15 +27,20 @@
       margin: 0;
       color: var(--ink);
       background:
-        radial-gradient(circle at 15% 8%, rgba(255,255,255,.9), transparent 26%),
-        linear-gradient(135deg, #efe2ca, #e7f1ee 48%, #f4e1bf);
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+        radial-gradient(circle at 14% 12%, rgba(243,170,50,.28), transparent 24%),
+        radial-gradient(circle at 88% 6%, rgba(25,165,178,.22), transparent 26%),
+        linear-gradient(135deg, #181f2e 0%, #253246 44%, #5a4a3c 100%);
+      background-size: 44px 44px, 44px 44px, auto, auto, auto;
       font-family: "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+      min-height: 100vh;
     }
 
     .app {
       width: min(1500px, calc(100vw - 32px));
       margin: 0 auto;
-      padding: 22px 0 38px;
+      padding: 24px 0 42px;
     }
 
     header {
@@ -42,7 +48,11 @@
       grid-template-columns: 1fr auto;
       gap: 18px;
       align-items: end;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+      padding: 18px 20px;
+      border: 1px solid rgba(255,255,255,.16);
+      background: linear-gradient(135deg, rgba(255,250,240,.94), rgba(238,244,242,.84));
+      box-shadow: var(--shadow);
     }
 
     h1 {
@@ -50,11 +60,12 @@
       font-size: clamp(24px, 3vw, 40px);
       line-height: 1.1;
       letter-spacing: 0;
+      color: #101827;
     }
 
     .sub {
       margin: 0;
-      color: var(--muted);
+      color: #536276;
       font-size: 14px;
       line-height: 1.65;
     }
@@ -68,19 +79,27 @@
 
     button {
       appearance: none;
-      border: 1px solid rgba(23,32,42,.18);
+      border: 1px solid rgba(23,32,42,.14);
       color: var(--ink);
-      background: rgba(255,250,240,.9);
-      padding: 9px 11px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(244,238,226,.92));
+      padding: 10px 12px;
       font: inherit;
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
+      box-shadow: 0 5px 14px rgba(22,32,51,.08);
+      transition: transform .14s ease, box-shadow .14s ease, background .14s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 9px 18px rgba(22,32,51,.14);
     }
 
     button.active {
       color: #fff;
-      background: var(--dark);
+      border-color: rgba(255,255,255,.16);
+      background: linear-gradient(135deg, #1b2536, #30415b);
     }
 
     .layout {
@@ -91,10 +110,12 @@
     }
 
     .stage-shell {
-      padding: 10px;
-      border: 2px solid rgba(23,32,42,.28);
-      background: rgba(255,250,240,.72);
-      box-shadow: 0 20px 38px rgba(43,54,71,.18);
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,.18);
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.2), rgba(255,255,255,.04)),
+        rgba(17,24,37,.72);
+      box-shadow: var(--shadow);
     }
 
     canvas {
@@ -102,13 +123,15 @@
       width: 100%;
       aspect-ratio: 16 / 9;
       background: #fbf8ef;
-      border: 1px solid rgba(23,32,42,.22);
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: inset 0 0 0 1px rgba(23,32,42,.24);
     }
 
     aside {
-      border: 2px solid rgba(23,32,42,.22);
-      background: rgba(255,250,240,.94);
-      padding: 14px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(180deg, rgba(255,250,240,.96), rgba(234,241,238,.93));
+      padding: 16px;
+      box-shadow: var(--shadow);
     }
 
     .control-head {
@@ -122,6 +145,7 @@
     .mode-title {
       font-size: 18px;
       font-weight: 900;
+      color: #101827;
     }
 
     .pill {
@@ -132,16 +156,17 @@
       min-height: 30px;
       padding: 0 10px;
       color: #fff;
-      background: var(--blue);
+      background: linear-gradient(135deg, var(--blue), var(--cyan));
       font-size: 12px;
       font-weight: 900;
       white-space: nowrap;
+      box-shadow: 0 8px 16px rgba(36,124,199,.22);
     }
 
     .field {
       margin-top: 12px;
       padding-top: 12px;
-      border-top: 1px solid var(--line);
+      border-top: 1px solid rgba(23,32,42,.12);
     }
 
     .field-row {
@@ -157,6 +182,7 @@
     input[type="range"] {
       width: 100%;
       accent-color: var(--blue);
+      cursor: pointer;
     }
 
     .players {
@@ -166,9 +192,10 @@
     }
 
     .player {
-      padding: 9px;
-      border: 1px solid rgba(23,32,42,.16);
-      background: rgba(255,255,255,.65);
+      padding: 10px;
+      border: 1px solid rgba(23,32,42,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.82), rgba(255,255,255,.58));
+      box-shadow: 0 8px 18px rgba(22,32,51,.06);
     }
 
     .player-top {
@@ -206,7 +233,8 @@
     .keymap span {
       padding: 7px;
       border: 1px solid rgba(23,32,42,.12);
-      background: rgba(255,255,255,.55);
+      background: rgba(255,255,255,.62);
+      color: #435168;
     }
 
     .actions {
@@ -218,9 +246,12 @@
 
     .hint {
       margin: 12px 0 0;
-      color: var(--muted);
+      color: #4d5c72;
       line-height: 1.65;
       font-size: 13px;
+      padding: 10px;
+      background: rgba(255,255,255,.54);
+      border: 1px solid rgba(23,32,42,.1);
     }
 
     @media (max-width: 1060px) {
@@ -313,7 +344,7 @@
       { id: "bomb", title: "节奏拆弹组", core: "核心二：速度区间命中", hint: "把速度保持在当前模块要求的目标区间内。偏离越久，炸弹危险值越高。" },
       { id: "kitchen", title: "彩虹厨房", core: "核心二：速度区间命中", hint: "P1 速度>=70切菜；P2保持45-62炒锅；P3保持35-78烤箱，超过78会过热；P4保持基准±8并持续1秒装盘。" },
       { id: "drift", title: "基准漂移", core: "核心一：基准差值控制", hint: "高于基准向右，低于基准向左，接近基准停住。重点看过冲和提前收力。" },
-      { id: "rail", title: "轨道调度员", core: "核心一：基准差值控制", hint: "玩家速度决定岔道方向，火车自动行驶，目标是把不同颜色火车送到对应车站。" },
+      { id: "rail", title: "轨道调度员", core: "核心一：基准差值控制", hint: "速度高于基准+死区：火车过岔道上切一格；低于基准-死区：下切一格；在死区内：直行，不改变轨道。" },
       { id: "puppet", title: "四人牵线木偶", core: "核心一：基准差值控制", hint: "每名玩家控制一个肢体角度。让木偶姿势匹配目标剪影并保持。" },
       { id: "water", title: "水位天平", core: "核心一：基准差值控制", hint: "高于基准加水，低于基准排水，接近基准保持。所有水箱达标才完成一题。" },
       { id: "safe", title: "保险箱四环", core: "核心一：基准差值控制", hint: "高于基准顺时针，低于基准逆时针；指针进入绿色目标区后，把速度保持在基准±8内 1 秒即可锁定。" },
@@ -489,7 +520,7 @@
           score: [0, 0, 0, 0],
           trains: [],
           spawn: 0,
-          switches: [false, false, false, false]
+          switchCommands: [0, 0, 0, 0]
         };
       }
       if (mode === "puppet") {
@@ -663,7 +694,10 @@
     }
 
     function updateRail(game, dt) {
-      game.switches = state.speeds.map((s) => axisFromSpeed(s) >= 0);
+      for (let i = 0; i < 4; i++) {
+        const axis = axisFromSpeed(state.speeds[i]);
+        game.switchCommands[i] = axis > 0 ? 1 : axis < 0 ? -1 : 0;
+      }
       game.spawn -= dt;
       if (game.spawn <= 0) {
         const colorsList = ["red", "blue", "yellow"];
@@ -673,10 +707,10 @@
       }
       for (const train of game.trains) {
         train.x += dt * 145;
-        if (train.x > 300 && train.x < 315) train.lane = game.switches[0] ? 0 : 2;
-        if (train.x > 560 && train.x < 575) train.lane = game.switches[1] ? Math.max(0, train.lane - 1) : Math.min(2, train.lane + 1);
-        if (train.x > 820 && train.x < 835) train.lane = game.switches[2] ? 0 : train.lane;
-        if (train.x > 980 && train.x < 995) train.lane = game.switches[3] ? train.lane : 2;
+        if (train.x > 300 && train.x < 315) train.lane = nextRailLane(train.lane, game.switchCommands[0]);
+        if (train.x > 560 && train.x < 575) train.lane = nextRailLane(train.lane, game.switchCommands[1]);
+        if (train.x > 820 && train.x < 835) train.lane = nextRailLane(train.lane, game.switchCommands[2]);
+        if (train.x > 980 && train.x < 995) train.lane = nextRailLane(train.lane, game.switchCommands[3]);
         if (train.x > 1160 && !train.done) {
           const laneTarget = train.target === "red" ? 0 : train.target === "blue" ? 1 : 2;
           const score = train.lane === laneTarget ? 18 : -10;
@@ -696,6 +730,12 @@
         }
       }
       game.trains = game.trains.filter((train) => train.x < 1230 && !train.done);
+    }
+
+    function nextRailLane(lane, command) {
+      if (command > 0) return Math.max(0, lane - 1);
+      if (command < 0) return Math.min(2, lane + 1);
+      return lane;
     }
 
     function updatePuppet(game, dt) {
@@ -855,12 +895,34 @@
       g.addColorStop(1, b);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, H);
+      ctx.save();
+      ctx.globalAlpha = 0.08;
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= W; x += 48) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= H; y += 48) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
+      }
+      ctx.restore();
     }
 
     function topBar(title, right) {
       const currentMode = modes.find((item) => item.id === state.mode);
-      ctx.fillStyle = "#202733";
+      const g = ctx.createLinearGradient(0, 0, W, 88);
+      g.addColorStop(0, "#111827");
+      g.addColorStop(1, "#2f405a");
+      ctx.fillStyle = g;
       ctx.fillRect(0, 0, W, 72);
+      ctx.fillStyle = "rgba(255,255,255,.08)";
+      ctx.fillRect(0, 70, W, 2);
       ctx.fillStyle = "#fffaf0";
       ctx.font = "900 30px Microsoft YaHei";
       ctx.fillText(title, 34, 47);
@@ -868,44 +930,56 @@
       ctx.fillText(right, W - 34, 47);
       ctx.textAlign = "left";
       if (currentMode) {
-        ctx.fillStyle = "rgba(255,250,240,.92)";
+        ctx.fillStyle = "rgba(255,250,240,.95)";
         ctx.font = "800 17px Microsoft YaHei";
         ctx.fillText(`核心模式：${currentMode.core}`, 34, 96);
       }
     }
 
     function panel(x, y, w, h, fill = "rgba(255,250,240,.82)") {
+      ctx.save();
+      ctx.shadowColor = "rgba(22,32,51,.16)";
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 10;
       ctx.fillStyle = fill;
-      ctx.strokeStyle = "rgba(23,32,42,.18)";
+      ctx.strokeStyle = "rgba(23,32,42,.14)";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.roundRect(x, y, w, h, 8);
+      ctx.roundRect(x, y, w, h, 12);
       ctx.fill();
+      ctx.shadowColor = "transparent";
       ctx.stroke();
+      ctx.restore();
     }
 
     function playerHud(scores) {
       const y = 636;
       for (let i = 0; i < 4; i++) {
         const x = 24 + i * 309;
-        panel(x, y, 285, 60, "rgba(255,255,255,.78)");
+        panel(x, y, 285, 60, "rgba(255,255,255,.84)");
         ctx.fillStyle = colors[i];
-        ctx.fillRect(x + 14, y + 15, 30, 30);
+        ctx.beginPath();
+        ctx.roundRect(x + 14, y + 14, 32, 32, 8);
+        ctx.fill();
         ctx.fillStyle = "#17202a";
         ctx.font = "900 18px Microsoft YaHei";
         ctx.fillText(`${names[i]}  速度 ${Math.round(state.speeds[i])}`, x + 56, y + 25);
         ctx.fillStyle = "#657286";
         ctx.font = "800 15px Microsoft YaHei";
         ctx.fillText(`分数 ${Math.round(scores[i] || 0)}`, x + 56, y + 49);
-        ctx.fillStyle = "#d9d0bf";
-        ctx.fillRect(x + 166, y + 38, 92, 8);
+        ctx.fillStyle = "#dbe1ea";
+        ctx.beginPath();
+        ctx.roundRect(x + 166, y + 38, 92, 8, 4);
+        ctx.fill();
         ctx.fillStyle = colors[i];
-        ctx.fillRect(x + 166, y + 38, Math.max(3, state.speeds[i] / 100 * 92), 8);
+        ctx.beginPath();
+        ctx.roundRect(x + 166, y + 38, Math.max(4, state.speeds[i] / 100 * 92), 8, 4);
+        ctx.fill();
       }
     }
 
     function drawGauge(x, y, w, h, speed, target, label) {
-      panel(x, y, w, h, "rgba(255,255,255,.82)");
+      panel(x, y, w, h, "rgba(255,255,255,.86)");
       ctx.fillStyle = "#17202a";
       ctx.font = "900 17px Microsoft YaHei";
       ctx.fillText(label, x + 12, y + 24);
@@ -913,13 +987,19 @@
       const barY = y + h - 34;
       const barW = w - 36;
       ctx.fillStyle = "#d7dde6";
-      ctx.fillRect(barX, barY, barW, 12);
+      ctx.beginPath();
+      ctx.roundRect(barX, barY, barW, 12, 6);
+      ctx.fill();
       if (target) {
         ctx.fillStyle = "rgba(47,166,106,.65)";
-        ctx.fillRect(barX + target[0] / 100 * barW, barY, (target[1] - target[0]) / 100 * barW, 12);
+        ctx.beginPath();
+        ctx.roundRect(barX + target[0] / 100 * barW, barY, (target[1] - target[0]) / 100 * barW, 12, 6);
+        ctx.fill();
       }
       ctx.fillStyle = "#17202a";
-      ctx.fillRect(barX + speed / 100 * barW - 2, barY - 9, 4, 30);
+      ctx.beginPath();
+      ctx.roundRect(barX + speed / 100 * barW - 3, barY - 9, 6, 30, 3);
+      ctx.fill();
     }
 
     function drawBomb(game) {
@@ -1063,11 +1143,16 @@
         ctx.stroke();
       }
       [300, 560, 820, 980].forEach((x, i) => {
-        ctx.fillStyle = game.switches[i] ? "#2fa66a" : "#df5148";
+        const command = game.switchCommands[i];
+        ctx.fillStyle = command > 0 ? "#2fa66a" : command < 0 ? "#df5148" : "#f2a93b";
         ctx.fillRect(x - 18, 300, 36, 60);
         ctx.fillStyle = "#17202a";
         ctx.font = "900 15px Microsoft YaHei";
         ctx.fillText(`P${i + 1}`, x - 12, 292);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "800 13px Microsoft YaHei";
+        const stateText = command > 0 ? "上切" : command < 0 ? "下切" : "直行";
+        ctx.fillText(stateText, x - 18, 382);
       });
       const stations = [
         { lane: 0, text: "红站", color: "#df5148" },
