@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>划船机八方案键盘动画原型</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #657286;
+      --paper: #f2eadb;
+      --panel: #fffaf0;
+      --line: #d8cebd;
+      --dark: #202733;
+      --red: #df5148;
+      --amber: #f2a93b;
+      --green: #2fa66a;
+      --blue: #287fc3;
+      --cyan: #21a1ae;
+      --violet: #7b61a8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 15% 8%, rgba(255,255,255,.9), transparent 26%),
+        linear-gradient(135deg, #efe2ca, #e7f1ee 48%, #f4e1bf);
+      font-family: "Microsoft YaHei", "Noto Sans CJK SC", "PingFang SC", sans-serif;
+    }
+
+    .app {
+      width: min(1500px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 22px 0 38px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(24px, 3vw, 40px);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, auto);
+      gap: 7px;
+      justify-content: end;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(23,32,42,.18);
+      color: var(--ink);
+      background: rgba(255,250,240,.9);
+      padding: 9px 11px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button.active {
+      color: #fff;
+      background: var(--dark);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 350px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .stage-shell {
+      padding: 10px;
+      border: 2px solid rgba(23,32,42,.28);
+      background: rgba(255,250,240,.72);
+      box-shadow: 0 20px 38px rgba(43,54,71,.18);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #fbf8ef;
+      border: 1px solid rgba(23,32,42,.22);
+    }
+
+    aside {
+      border: 2px solid rgba(23,32,42,.22);
+      background: rgba(255,250,240,.94);
+      padding: 14px;
+    }
+
+    .control-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .mode-title {
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 132px;
+      min-height: 30px;
+      padding: 0 10px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .field {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+
+    .field-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--blue);
+    }
+
+    .players {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .player {
+      padding: 9px;
+      border: 1px solid rgba(23,32,42,.16);
+      background: rgba(255,255,255,.65);
+    }
+
+    .player-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-weight: 900;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      margin-right: 7px;
+      vertical-align: -1px;
+    }
+
+    .readout {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+    }
+
+    .keymap {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .keymap span {
+      padding: 7px;
+      border: 1px solid rgba(23,32,42,.12);
+      background: rgba(255,255,255,.55);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .hint {
+      margin: 12px 0 0;
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 13px;
+    }
+
+    @media (max-width: 1060px) {
+      header,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .tabs {
+        justify-content: start;
+      }
+
+      aside {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app { width: min(100vw - 18px, 720px); padding-top: 16px; }
+      .tabs { grid-template-columns: repeat(2, auto); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>划船机八方案键盘动画原型</h1>
+        <p class="sub">用键盘模拟 4 台划船机速度。上排键增加速度，下排键减少速度，松开后速度保持不变；也可以拖动滑块微调。数字键 1-8 可快速切换游戏。</p>
+      </div>
+      <nav class="tabs" id="tabs" aria-label="游戏模式"></nav>
+    </header>
+
+    <div class="layout">
+      <section class="stage-shell">
+        <canvas id="stage" width="1280" height="720"></canvas>
+      </section>
+
+      <aside>
+        <div class="control-head">
+          <div class="mode-title" id="modeTitle">节奏拆弹组</div>
+          <span class="pill" id="coreLabel">核心二</span>
+        </div>
+
+        <div class="field">
+          <div class="field-row"><span>基准速度</span><span id="baseReadout">50</span></div>
+          <input id="baseSpeed" type="range" min="25" max="75" value="50">
+        </div>
+
+        <div class="field">
+          <div class="field-row"><span>死区范围</span><span id="deadReadout">5</span></div>
+          <input id="deadZone" type="range" min="2" max="15" value="5">
+        </div>
+
+        <div class="players" id="players"></div>
+
+        <div class="keymap">
+          <span>P1：Q 加速 / A 减速</span>
+          <span>P2：W 加速 / S 减速</span>
+          <span>P3：E 加速 / D 减速</span>
+          <span>P4：R 加速 / F 减速</span>
+        </div>
+
+        <div class="actions">
+          <button id="autoBtn">自动演示：关</button>
+          <button id="resetBtn">重置本游戏</button>
+        </div>
+
+        <p class="hint" id="modeHint"></p>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("stage");
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width;
+    const H = canvas.height;
+
+    const colors = ["#287fc3", "#2fa66a", "#f2a93b", "#7b61a8"];
+    const names = ["P1", "P2", "P3", "P4"];
+    const keyPairs = [
+      { up: "q", down: "a" },
+      { up: "w", down: "s" },
+      { up: "e", down: "d" },
+      { up: "r", down: "f" }
+    ];
+
+    const modes = [
+      { id: "bomb", title: "节奏拆弹组", core: "核心二：速度区间命中", hint: "把速度保持在当前模块要求的目标区间内。偏离越久，炸弹危险值越高。" },
+      { id: "kitchen", title: "彩虹厨房", core: "核心二：速度区间命中", hint: "P1 速度>=70切菜；P2保持45-62炒锅；P3保持35-78烤箱，超过78会过热；P4保持基准±8并持续1秒装盘。" },
+      { id: "drift", title: "基准漂移", core: "核心一：基准差值控制", hint: "高于基准向右，低于基准向左，接近基准停住。重点看过冲和提前收力。" },
+      { id: "rail", title: "轨道调度员", core: "核心一：基准差值控制", hint: "玩家速度决定岔道方向，火车自动行驶，目标是把不同颜色火车送到对应车站。" },
+      { id: "puppet", title: "四人牵线木偶", core: "核心一：基准差值控制", hint: "每名玩家控制一个肢体角度。让木偶姿势匹配目标剪影并保持。" },
+      { id: "water", title: "水位天平", core: "核心一：基准差值控制", hint: "高于基准加水，低于基准排水，接近基准保持。所有水箱达标才完成一题。" },
+      { id: "safe", title: "保险箱四环", core: "核心一：基准差值控制", hint: "高于基准顺时针，低于基准逆时针；指针进入绿色目标区后，把速度保持在基准±8内 1 秒即可锁定。" },
+      { id: "pinball", title: "弹珠发射台", core: "核心三：蓄力释放", hint: "高于基准开始蓄力，速度回落到基准以下时发射弹珠。" }
+    ];
+
+    const state = {
+      mode: "bomb",
+      auto: false,
+      time: 0,
+      baseSpeed: 50,
+      deadZone: 5,
+      speeds: [50, 50, 50, 50],
+      prevSpeeds: [50, 50, 50, 50],
+      keys: new Set(),
+      game: {}
+    };
+
+    const tabs = document.getElementById("tabs");
+    const playersEl = document.getElementById("players");
+    const modeTitle = document.getElementById("modeTitle");
+    const coreLabel = document.getElementById("coreLabel");
+    const modeHint = document.getElementById("modeHint");
+    const baseSpeed = document.getElementById("baseSpeed");
+    const deadZone = document.getElementById("deadZone");
+    const baseReadout = document.getElementById("baseReadout");
+    const deadReadout = document.getElementById("deadReadout");
+    const autoBtn = document.getElementById("autoBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const sliders = [];
+    const readouts = [];
+
+    modes.forEach((mode, index) => {
+      const btn = document.createElement("button");
+      btn.textContent = `${index + 1}. ${mode.title}`;
+      btn.dataset.mode = mode.id;
+      if (index === 0) btn.classList.add("active");
+      btn.addEventListener("click", () => setMode(mode.id));
+      tabs.appendChild(btn);
+    });
+
+    for (let i = 0; i < 4; i++) {
+      const el = document.createElement("div");
+      el.className = "player";
+      el.innerHTML = `
+        <div class="player-top">
+          <span><i class="dot" style="background:${colors[i]}"></i>${names[i]} 速度</span>
+          <span class="readout">${Math.round(state.speeds[i])}</span>
+        </div>
+        <input type="range" min="0" max="100" value="${state.speeds[i]}" data-player="${i}">
+      `;
+      playersEl.appendChild(el);
+      const input = el.querySelector("input");
+      const readout = el.querySelector(".readout");
+      input.addEventListener("input", () => {
+        state.auto = false;
+        state.speeds[i] = Number(input.value);
+        updateControls();
+      });
+      sliders.push(input);
+      readouts.push(readout);
+    }
+
+    baseSpeed.addEventListener("input", () => {
+      state.baseSpeed = Number(baseSpeed.value);
+      updateControls();
+    });
+
+    deadZone.addEventListener("input", () => {
+      state.deadZone = Number(deadZone.value);
+      updateControls();
+    });
+
+    autoBtn.addEventListener("click", () => {
+      state.auto = !state.auto;
+      updateControls();
+    });
+
+    resetBtn.addEventListener("click", () => resetCurrentGame());
+
+    window.addEventListener("keydown", (event) => {
+      const key = event.key.toLowerCase();
+      if (/^[1-8]$/.test(key)) {
+        const mode = modes[Number(key) - 1];
+        if (mode) setMode(mode.id);
+        return;
+      }
+      if (key === "0") {
+        resetCurrentGame();
+        return;
+      }
+      if (key === "t") {
+        state.auto = !state.auto;
+        updateControls();
+        return;
+      }
+      if (keyPairs.some((pair) => pair.up === key || pair.down === key)) {
+        state.auto = false;
+        state.keys.add(key);
+        updateControls();
+        event.preventDefault();
+      }
+    });
+
+    window.addEventListener("keyup", (event) => {
+      state.keys.delete(event.key.toLowerCase());
+    });
+
+    function setMode(id) {
+      state.mode = id;
+      document.querySelectorAll("[data-mode]").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.mode === id);
+      });
+      const mode = modes.find((item) => item.id === id);
+      modeTitle.textContent = mode.title;
+      coreLabel.textContent = mode.core;
+      modeHint.textContent = mode.hint;
+      resetCurrentGame();
+      updateControls();
+    }
+
+    function updateControls() {
+      for (let i = 0; i < 4; i++) {
+        sliders[i].value = String(Math.round(state.speeds[i]));
+        readouts[i].textContent = String(Math.round(state.speeds[i]));
+      }
+      baseSpeed.value = String(state.baseSpeed);
+      deadZone.value = String(state.deadZone);
+      baseReadout.textContent = String(state.baseSpeed);
+      deadReadout.textContent = String(state.deadZone);
+      autoBtn.textContent = state.auto ? "自动演示：开" : "自动演示：关";
+      autoBtn.classList.toggle("active", state.auto);
+    }
+
+    function resetCurrentGame() {
+      state.game[state.mode] = createGameState(state.mode);
+    }
+
+    function createGameState(mode) {
+      if (mode === "bomb") {
+        return {
+          danger: 45,
+          score: [0, 0, 0, 0],
+          moduleTimer: 0,
+          moduleIndex: 0,
+          modules: [
+            { name: "全员稳定 45-55", targets: [[45,55],[45,55],[45,55],[45,55]] },
+            { name: "左右分工", targets: [[28,40],[60,72],[28,40],[60,72]] },
+            { name: "低速稳压", targets: [[30,44],[30,44],[30,44],[30,44]] },
+            { name: "副歌高压 65-78", targets: [[65,78],[65,78],[65,78],[65,78]] }
+          ]
+        };
+      }
+      if (mode === "kitchen") {
+        return {
+          score: [0, 0, 0, 0],
+          combo: 1,
+          order: 1,
+          progress: [0, 0, 0, 0],
+          bad: [0, 0, 0, 0],
+          stations: ["切菜", "炒锅", "烤箱", "装盘"]
+        };
+      }
+      if (mode === "drift") {
+        return {
+          x: [240, 430, 650, 840],
+          score: [0, 0, 0, 0],
+          items: [0,1,2,3].map((_, i) => ({ star: 230 + i * 210, hazard: 900 - i * 150 }))
+        };
+      }
+      if (mode === "rail") {
+        return {
+          score: [0, 0, 0, 0],
+          trains: [],
+          spawn: 0,
+          switches: [false, false, false, false]
+        };
+      }
+      if (mode === "puppet") {
+        return {
+          angles: [-25, 25, 10, -10],
+          target: [-55, 45, 30, -35],
+          hold: 0,
+          score: [0, 0, 0, 0],
+          pose: 1
+        };
+      }
+      if (mode === "water") {
+        return {
+          level: [42, 58, 72, 48],
+          target: [60, 42, 75, 50],
+          hold: 0,
+          score: [0, 0, 0, 0],
+          round: 1
+        };
+      }
+      if (mode === "safe") {
+        return {
+          angle: [35, 140, 250, 310],
+          target: [90, 170, 260, 40],
+          locked: [false, false, false, false],
+          lockTime: [0, 0, 0, 0],
+          score: [0, 0, 0, 0],
+          round: 1
+        };
+      }
+      if (mode === "pinball") {
+        return {
+          score: [0, 0, 0, 0],
+          charging: [false, false, false, false],
+          peak: [0, 0, 0, 0],
+          chargeTime: [0, 0, 0, 0],
+          balls: []
+        };
+      }
+      return {};
+    }
+
+    setMode("bomb");
+    updateControls();
+
+    let last = performance.now();
+    requestAnimationFrame(loop);
+
+    function loop(now) {
+      const dt = Math.min(0.033, (now - last) / 1000);
+      last = now;
+      state.time += dt;
+      state.prevSpeeds = state.speeds.slice();
+      updateSpeeds(dt);
+      updateGame(dt);
+      drawGame();
+      requestAnimationFrame(loop);
+    }
+
+    function updateSpeeds(dt) {
+      if (state.auto) {
+        const t = state.time;
+        state.speeds = [
+          50 + Math.sin(t * 1.2) * 25,
+          50 + Math.sin(t * 1.5 + 1.4) * 28,
+          50 + Math.sin(t * 1.1 + 2.8) * 30,
+          50 + Math.sin(t * 1.7 + 4.1) * 24
+        ].map(clampSpeed);
+      } else {
+        for (let i = 0; i < 4; i++) {
+          const pair = keyPairs[i];
+          const up = state.keys.has(pair.up);
+          const down = state.keys.has(pair.down);
+          if (up) state.speeds[i] += 72 * dt;
+          if (down) state.speeds[i] -= 88 * dt;
+          state.speeds[i] = clampSpeed(state.speeds[i]);
+        }
+      }
+      updateControls();
+    }
+
+    function clampSpeed(v) {
+      return Math.max(0, Math.min(100, v));
+    }
+
+    function axisFromSpeed(speed) {
+      const offset = speed - state.baseSpeed;
+      if (Math.abs(offset) <= state.deadZone) return 0;
+      return Math.max(-1, Math.min(1, offset / 35));
+    }
+
+    function speedDelta(i) {
+      return state.speeds[i] - state.prevSpeeds[i];
+    }
+
+    function updateGame(dt) {
+      const game = state.game[state.mode];
+      if (state.mode === "bomb") updateBomb(game, dt);
+      if (state.mode === "kitchen") updateKitchen(game, dt);
+      if (state.mode === "drift") updateDrift(game, dt);
+      if (state.mode === "rail") updateRail(game, dt);
+      if (state.mode === "puppet") updatePuppet(game, dt);
+      if (state.mode === "water") updateWater(game, dt);
+      if (state.mode === "safe") updateSafe(game, dt);
+      if (state.mode === "pinball") updatePinball(game, dt);
+    }
+
+    function updateBomb(game, dt) {
+      game.moduleTimer += dt;
+      if (game.moduleTimer > 12) {
+        game.moduleTimer = 0;
+        game.moduleIndex = (game.moduleIndex + 1) % game.modules.length;
+      }
+      const module = game.modules[game.moduleIndex];
+      let totalError = 0;
+      for (let i = 0; i < 4; i++) {
+        const [low, high] = module.targets[i];
+        const hit = state.speeds[i] >= low && state.speeds[i] <= high;
+        if (hit) {
+          game.score[i] += dt * 8;
+          totalError -= 3;
+        } else {
+          const error = state.speeds[i] < low ? low - state.speeds[i] : state.speeds[i] - high;
+          totalError += error * 0.08;
+        }
+        totalError += Math.max(0, Math.abs(speedDelta(i)) - 1.4) * 0.12;
+      }
+      game.danger = Math.max(0, Math.min(100, game.danger + totalError * dt));
+    }
+
+    function updateKitchen(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        const s = state.speeds[i];
+        let good = false;
+        if (i === 0) good = s >= 68;
+        if (i === 1) good = s >= 45 && s <= 62;
+        if (i === 2) good = s >= 35 && s <= 78;
+        if (i === 3) good = Math.abs(s - state.baseSpeed) <= 8;
+        if (good) {
+          game.progress[i] = Math.min(100, game.progress[i] + dt * (i === 0 ? 34 : 22));
+          game.score[i] += dt * 6;
+        } else {
+          game.bad[i] = Math.min(100, game.bad[i] + dt * 8);
+          game.progress[i] = Math.max(0, game.progress[i] - dt * 5);
+        }
+      }
+      if (game.progress.every((v) => v >= 100)) {
+        game.order += 1;
+        game.combo += 1;
+        game.progress = [0, 0, 0, 0];
+        game.bad = [0, 0, 0, 0];
+      }
+      if (game.bad.some((v) => v >= 100)) {
+        game.combo = 1;
+        game.bad = [0, 0, 0, 0];
+      }
+    }
+
+    function updateDrift(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        game.x[i] = Math.max(130, Math.min(1150, game.x[i] + axisFromSpeed(state.speeds[i]) * 340 * dt));
+        if (Math.abs(game.x[i] - game.items[i].star) < 26) {
+          game.score[i] += 10;
+          game.items[i].star = 170 + Math.random() * 900;
+        }
+        if (Math.abs(game.x[i] - game.items[i].hazard) < 24) {
+          game.score[i] = Math.max(0, game.score[i] - 8);
+          game.items[i].hazard = 170 + Math.random() * 900;
+        }
+      }
+    }
+
+    function updateRail(game, dt) {
+      game.switches = state.speeds.map((s) => axisFromSpeed(s) >= 0);
+      game.spawn -= dt;
+      if (game.spawn <= 0) {
+        const colorsList = ["red", "blue", "yellow"];
+        const color = colorsList[Math.floor(Math.random() * colorsList.length)];
+        game.trains.push({ x: 80, lane: 1, color, target: color, crashed: false });
+        game.spawn = 2.2 + Math.random() * 1.4;
+      }
+      for (const train of game.trains) {
+        train.x += dt * 145;
+        if (train.x > 300 && train.x < 315) train.lane = game.switches[0] ? 0 : 2;
+        if (train.x > 560 && train.x < 575) train.lane = game.switches[1] ? Math.max(0, train.lane - 1) : Math.min(2, train.lane + 1);
+        if (train.x > 820 && train.x < 835) train.lane = game.switches[2] ? 0 : train.lane;
+        if (train.x > 980 && train.x < 995) train.lane = game.switches[3] ? train.lane : 2;
+        if (train.x > 1160 && !train.done) {
+          const laneTarget = train.target === "red" ? 0 : train.target === "blue" ? 1 : 2;
+          const score = train.lane === laneTarget ? 18 : -10;
+          for (let i = 0; i < 4; i++) game.score[i] = Math.max(0, game.score[i] + score / 4);
+          train.done = true;
+        }
+      }
+      for (let i = 0; i < game.trains.length; i++) {
+        for (let j = i + 1; j < game.trains.length; j++) {
+          const a = game.trains[i];
+          const b = game.trains[j];
+          if (!a.crashed && !b.crashed && a.lane === b.lane && Math.abs(a.x - b.x) < 34) {
+            a.crashed = true;
+            b.crashed = true;
+            for (let p = 0; p < 4; p++) game.score[p] = Math.max(0, game.score[p] - 8);
+          }
+        }
+      }
+      game.trains = game.trains.filter((train) => train.x < 1230 && !train.done);
+    }
+
+    function updatePuppet(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        game.angles[i] += axisFromSpeed(state.speeds[i]) * 120 * dt;
+        game.angles[i] = Math.max(-85, Math.min(85, game.angles[i]));
+      }
+      const match = poseMatch(game);
+      if (match >= 80) {
+        game.hold += dt;
+        for (let i = 0; i < 4; i++) game.score[i] += dt * 6;
+      } else {
+        game.hold = 0;
+      }
+      if (game.hold > 2) {
+        game.pose += 1;
+        game.hold = 0;
+        game.target = game.target.map(() => -65 + Math.random() * 130);
+      }
+    }
+
+    function poseMatch(game) {
+      let error = 0;
+      for (let i = 0; i < 4; i++) error += Math.abs(game.angles[i] - game.target[i]);
+      return Math.max(0, 100 - error / 4);
+    }
+
+    function updateWater(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        game.level[i] += axisFromSpeed(state.speeds[i]) * 38 * dt;
+        game.level[i] = Math.max(0, Math.min(100, game.level[i]));
+      }
+      const ok = game.level.every((level, i) => Math.abs(level - game.target[i]) < 6);
+      if (ok) {
+        game.hold += dt;
+        for (let i = 0; i < 4; i++) game.score[i] += dt * 5;
+      } else {
+        game.hold = 0;
+      }
+      if (game.hold > 2) {
+        game.round += 1;
+        game.hold = 0;
+        game.target = game.target.map(() => 25 + Math.random() * 55);
+      }
+    }
+
+    function updateSafe(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        const axis = axisFromSpeed(state.speeds[i]);
+        if (!game.locked[i]) {
+          game.angle[i] = (game.angle[i] + axis * 170 * dt + 360) % 360;
+          const diff = angleDiff(game.angle[i], game.target[i]);
+          const inTarget = Math.abs(diff) < 14;
+          const stable = Math.abs(state.speeds[i] - state.baseSpeed) <= 8;
+          if (inTarget && stable) {
+            game.lockTime[i] += dt;
+            if (game.lockTime[i] > 1) game.locked[i] = true;
+          } else {
+            game.lockTime[i] = 0;
+          }
+        }
+      }
+      if (game.locked.every(Boolean)) {
+        for (let i = 0; i < 4; i++) game.score[i] += 25;
+        game.round += 1;
+        game.locked = [false, false, false, false];
+        game.lockTime = [0, 0, 0, 0];
+        game.target = game.target.map(() => Math.random() * 360);
+      }
+    }
+
+    function angleDiff(a, b) {
+      return ((a - b + 540) % 360) - 180;
+    }
+
+    function updatePinball(game, dt) {
+      for (let i = 0; i < 4; i++) {
+        const s = state.speeds[i];
+        if (s > state.baseSpeed + state.deadZone) {
+          game.charging[i] = true;
+          game.peak[i] = Math.max(game.peak[i], s);
+          game.chargeTime[i] += dt;
+        }
+        if (game.charging[i] && s < state.baseSpeed - state.deadZone) {
+          launchBall(game, i, Math.max(30, Math.min(96, game.peak[i])));
+          game.charging[i] = false;
+          game.peak[i] = 0;
+          game.chargeTime[i] = 0;
+        }
+        if (game.chargeTime[i] > 4) game.peak[i] *= 0.986;
+      }
+
+      const targets = pinTargets();
+      for (const ball of game.balls) {
+        ball.life -= dt;
+        ball.vy += 130 * dt;
+        ball.x += ball.vx * dt;
+        ball.y += ball.vy * dt;
+        if (ball.x < 80 || ball.x > 1200) ball.vx *= -0.86;
+        if (ball.y < 95) ball.vy *= -0.86;
+        if (ball.y > 615) {
+          ball.y = 615;
+          ball.vy *= -0.74;
+        }
+        for (const target of targets) {
+          const dx = ball.x - target.x;
+          const dy = ball.y - target.y;
+          if (Math.hypot(dx, dy) < target.r + 13 && ball.cool <= 0) {
+            game.score[ball.player] += target.score;
+            ball.vx += dx * 2.8;
+            ball.vy += dy * 2.8 - 120;
+            ball.cool = 0.45;
+          }
+        }
+        ball.cool -= dt;
+      }
+      game.balls = game.balls.filter((ball) => ball.life > 0);
+    }
+
+    function launchBall(game, player, power) {
+      game.balls.push({
+        player,
+        x: 190 + player * 300,
+        y: 608,
+        vx: (player - 1.5) * 70,
+        vy: -power * 7,
+        life: 10,
+        cool: 0.2
+      });
+    }
+
+    function pinTargets() {
+      return [
+        { x: 260, y: 180, r: 42, score: 30, label: "30", color: "#df5148" },
+        { x: 640, y: 130, r: 54, score: 60, label: "机关", color: "#287fc3" },
+        { x: 1020, y: 190, r: 42, score: 30, label: "30", color: "#2fa66a" },
+        { x: 430, y: 310, r: 34, score: 20, label: "20", color: "#f2a93b" },
+        { x: 860, y: 330, r: 34, score: 20, label: "20", color: "#7b61a8" }
+      ];
+    }
+
+    function drawGame() {
+      const game = state.game[state.mode];
+      if (state.mode === "bomb") drawBomb(game);
+      if (state.mode === "kitchen") drawKitchen(game);
+      if (state.mode === "drift") drawDrift(game);
+      if (state.mode === "rail") drawRail(game);
+      if (state.mode === "puppet") drawPuppet(game);
+      if (state.mode === "water") drawWater(game);
+      if (state.mode === "safe") drawSafe(game);
+      if (state.mode === "pinball") drawPinball(game);
+    }
+
+    function clear(a, b) {
+      const g = ctx.createLinearGradient(0, 0, W, H);
+      g.addColorStop(0, a);
+      g.addColorStop(1, b);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    function topBar(title, right) {
+      const currentMode = modes.find((item) => item.id === state.mode);
+      ctx.fillStyle = "#202733";
+      ctx.fillRect(0, 0, W, 72);
+      ctx.fillStyle = "#fffaf0";
+      ctx.font = "900 30px Microsoft YaHei";
+      ctx.fillText(title, 34, 47);
+      ctx.textAlign = "right";
+      ctx.fillText(right, W - 34, 47);
+      ctx.textAlign = "left";
+      if (currentMode) {
+        ctx.fillStyle = "rgba(255,250,240,.92)";
+        ctx.font = "800 17px Microsoft YaHei";
+        ctx.fillText(`核心模式：${currentMode.core}`, 34, 96);
+      }
+    }
+
+    function panel(x, y, w, h, fill = "rgba(255,250,240,.82)") {
+      ctx.fillStyle = fill;
+      ctx.strokeStyle = "rgba(23,32,42,.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 8);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function playerHud(scores) {
+      const y = 636;
+      for (let i = 0; i < 4; i++) {
+        const x = 24 + i * 309;
+        panel(x, y, 285, 60, "rgba(255,255,255,.78)");
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x + 14, y + 15, 30, 30);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.fillText(`${names[i]}  速度 ${Math.round(state.speeds[i])}`, x + 56, y + 25);
+        ctx.fillStyle = "#657286";
+        ctx.font = "800 15px Microsoft YaHei";
+        ctx.fillText(`分数 ${Math.round(scores[i] || 0)}`, x + 56, y + 49);
+        ctx.fillStyle = "#d9d0bf";
+        ctx.fillRect(x + 166, y + 38, 92, 8);
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(x + 166, y + 38, Math.max(3, state.speeds[i] / 100 * 92), 8);
+      }
+    }
+
+    function drawGauge(x, y, w, h, speed, target, label) {
+      panel(x, y, w, h, "rgba(255,255,255,.82)");
+      ctx.fillStyle = "#17202a";
+      ctx.font = "900 17px Microsoft YaHei";
+      ctx.fillText(label, x + 12, y + 24);
+      const barX = x + 18;
+      const barY = y + h - 34;
+      const barW = w - 36;
+      ctx.fillStyle = "#d7dde6";
+      ctx.fillRect(barX, barY, barW, 12);
+      if (target) {
+        ctx.fillStyle = "rgba(47,166,106,.65)";
+        ctx.fillRect(barX + target[0] / 100 * barW, barY, (target[1] - target[0]) / 100 * barW, 12);
+      }
+      ctx.fillStyle = "#17202a";
+      ctx.fillRect(barX + speed / 100 * barW - 2, barY - 9, 4, 30);
+    }
+
+    function drawBomb(game) {
+      clear("#fff1c7", "#d8e0e7");
+      const module = game.modules[game.moduleIndex];
+      topBar("节奏拆弹组", `${module.name}    危险 ${Math.round(game.danger)}%`);
+      ctx.fillStyle = "#2f3744";
+      ctx.beginPath();
+      ctx.arc(640, 292, 115, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#59616c";
+      ctx.fillRect(620, 150, 40, 55);
+      ctx.fillStyle = "#df5148";
+      ctx.fillRect(455, 445, 370, 32);
+      ctx.fillStyle = "#2fa66a";
+      ctx.fillRect(455, 445, (100 - game.danger) / 100 * 370, 32);
+      ctx.strokeStyle = "#17202a";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(455, 445, 370, 32);
+      for (let i = 0; i < 4; i++) {
+        const pos = [[45,120], [985,120], [45,395], [985,395]][i];
+        drawGauge(pos[0], pos[1], 240, 120, state.speeds[i], module.targets[i], `${names[i]} 回路`);
+      }
+      playerHud(game.score);
+    }
+
+    function drawKitchen(game) {
+      clear("#fff2c7", "#f6d5ad");
+      topBar("彩虹厨房", `订单 ${game.order}    连击 x${game.combo}`);
+      const stations = [
+        { x: 60, name: "切菜台", rule: "速度 ≥ 70：切菜推进", detail: "低于70不推进" },
+        { x: 350, name: "炒锅", rule: "保持 45-62：火候正确", detail: "低/高都会掉进度" },
+        { x: 640, name: "烤箱", rule: "35-78：安全加热", detail: ">78 过热，坏菜条上升" },
+        { x: 930, name: "装盘台", rule: "基准±8：装盘锁定", detail: "以当前基准为中心" }
+      ];
+      for (let i = 0; i < 4; i++) {
+        const st = stations[i];
+        panel(st.x, 160, 230, 330, "rgba(255,255,255,.76)");
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(st.x + 20, 185, 38, 38);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 24px Microsoft YaHei";
+        ctx.fillText(`${names[i]} ${st.name}`, st.x + 70, 213);
+        ctx.font = "800 17px Microsoft YaHei";
+        ctx.fillText(st.rule, st.x + 24, 252);
+        ctx.fillStyle = "#657286";
+        ctx.font = "800 14px Microsoft YaHei";
+        ctx.fillText(st.detail, st.x + 24, 278);
+        ctx.fillStyle = "#d9d0bf";
+        ctx.fillRect(st.x + 24, 390, 180, 20);
+        ctx.fillStyle = "#2fa66a";
+        ctx.fillRect(st.x + 24, 390, game.progress[i] / 100 * 180, 20);
+        ctx.fillStyle = "#df5148";
+        ctx.fillRect(st.x + 24, 430, game.bad[i] / 100 * 180, 12);
+        ctx.fillStyle = "#f2a93b";
+        ctx.beginPath();
+        ctx.arc(st.x + 115, 315, 42, 0, Math.PI * 2);
+        ctx.fill();
+        if (i < 3) {
+          ctx.fillStyle = "#657286";
+          ctx.fillRect(st.x + 235, 310, 64, 10);
+          ctx.beginPath();
+          ctx.moveTo(st.x + 299, 300);
+          ctx.lineTo(st.x + 326, 315);
+          ctx.lineTo(st.x + 299, 330);
+          ctx.fill();
+        }
+      }
+      playerHud(game.score);
+    }
+
+    function drawStar(x, y, size) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = "#f2a93b";
+      ctx.fillRect(-size / 2, -size / 2, size, size);
+      ctx.restore();
+    }
+
+    function drawHazard(x, y, r) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.fillStyle = "#df5148";
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++) {
+        const a = -Math.PI / 2 + i * Math.PI / 5;
+        const rr = i % 2 === 0 ? r : r * .45;
+        ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawDrift(game) {
+      clear("#d9f0ff", "#f7f0de");
+      topBar("基准漂移", `基准 ${state.baseSpeed}    死区 ±${state.deadZone}`);
+      const lanes = [160, 260, 360, 460];
+      for (let i = 0; i < 4; i++) {
+        const y = lanes[i];
+        ctx.fillStyle = "rgba(255,255,255,.58)";
+        ctx.fillRect(100, y - 24, 1080, 48);
+        ctx.strokeStyle = "#718096";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(100, y - 24, 1080, 48);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.fillText(names[i], 44, y + 7);
+        drawStar(game.items[i].star, y, 26);
+        drawHazard(game.items[i].hazard, y, 20);
+        ctx.fillStyle = colors[i];
+        ctx.beginPath();
+        ctx.arc(game.x[i], y, 21, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fffaf0";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        const axis = axisFromSpeed(state.speeds[i]);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "800 14px Microsoft YaHei";
+        ctx.fillText(axis > .05 ? "右移" : axis < -.05 ? "左移" : "停住", game.x[i] - 18, y - 32);
+      }
+      panel(130, 535, 1020, 64, "rgba(255,250,240,.78)");
+      ctx.fillStyle = "#17202a";
+      ctx.font = "900 23px Microsoft YaHei";
+      ctx.fillText("低于基准向左，接近基准停住，高于基准向右。吃黄色奖励，躲红色危险。", 165, 575);
+      playerHud(game.score);
+    }
+
+    function drawRail(game) {
+      clear("#e9f3df", "#f8efd6");
+      topBar("轨道调度员", `场上火车 ${game.trains.length}`);
+      const laneY = [190, 330, 470];
+      ctx.strokeStyle = "#56616f";
+      ctx.lineWidth = 7;
+      for (const y of laneY) {
+        ctx.beginPath();
+        ctx.moveTo(90, y);
+        ctx.lineTo(1180, y);
+        ctx.stroke();
+      }
+      [300, 560, 820, 980].forEach((x, i) => {
+        ctx.fillStyle = game.switches[i] ? "#2fa66a" : "#df5148";
+        ctx.fillRect(x - 18, 300, 36, 60);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 15px Microsoft YaHei";
+        ctx.fillText(`P${i + 1}`, x - 12, 292);
+      });
+      const stations = [
+        { lane: 0, text: "红站", color: "#df5148" },
+        { lane: 1, text: "蓝站", color: "#287fc3" },
+        { lane: 2, text: "黄站", color: "#f2a93b" }
+      ];
+      for (const st of stations) {
+        panel(1085, laneY[st.lane] - 34, 96, 58, "rgba(255,255,255,.84)");
+        ctx.fillStyle = st.color;
+        ctx.font = "900 20px Microsoft YaHei";
+        ctx.fillText(st.text, 1105, laneY[st.lane] + 5);
+      }
+      for (const train of game.trains) {
+        const y = laneY[train.lane];
+        ctx.fillStyle = train.color === "red" ? "#df5148" : train.color === "blue" ? "#287fc3" : "#f2a93b";
+        ctx.fillRect(train.x - 26, y - 20, 52, 40);
+        ctx.strokeStyle = "#fffaf0";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(train.x - 26, y - 20, 52, 40);
+      }
+      playerHud(game.score);
+    }
+
+    function drawPuppet(game) {
+      clear("#f9e7bd", "#f3d092");
+      topBar("四人牵线木偶", `姿势 ${game.pose}    匹配度 ${Math.round(poseMatch(game))}%`);
+      panel(880, 135, 260, 370, "rgba(255,255,255,.55)");
+      ctx.fillStyle = "#17202a";
+      ctx.font = "900 23px Microsoft YaHei";
+      ctx.fillText("目标剪影", 955, 176);
+      drawPuppetBody(1010, 330, game.target, true);
+      drawPuppetBody(560, 340, game.angles, false);
+      for (let i = 0; i < 4; i++) {
+        panel(80, 145 + i * 82, 230, 56, "rgba(255,255,255,.74)");
+        ctx.fillStyle = colors[i];
+        ctx.fillRect(96, 162 + i * 82, 22, 22);
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.fillText(`${names[i]} 角度 ${Math.round(game.angles[i])}`, 132, 181 + i * 82);
+      }
+      playerHud(game.score);
+    }
+
+    function drawPuppetBody(cx, cy, angles, ghost) {
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.globalAlpha = ghost ? 0.35 : 1;
+      ctx.strokeStyle = ghost ? "#17202a" : "#384252";
+      ctx.lineWidth = ghost ? 10 : 14;
+      ctx.lineCap = "round";
+      ctx.fillStyle = ghost ? "#17202a" : "#f1b77e";
+      ctx.beginPath();
+      ctx.arc(0, -115, 34, 0, Math.PI * 2);
+      ctx.fill();
+      line(0, -78, 0, 10);
+      limb(0, -45, angles[0] - 90, 90, colors[0]);
+      limb(0, -45, angles[1] + 90, 90, colors[1]);
+      limb(0, 8, angles[2] + 80, 105, colors[2]);
+      limb(0, 8, angles[3] + 100, 105, colors[3]);
+      ctx.restore();
+
+      function limb(x, y, deg, len, color) {
+        ctx.strokeStyle = ghost ? "#17202a" : color;
+        const a = deg / 180 * Math.PI;
+        line(x, y, x + Math.cos(a) * len, y + Math.sin(a) * len);
+      }
+      function line(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+
+    function drawWater(game) {
+      clear("#e4f7ff", "#d1ecf2");
+      topBar("水位天平", `第 ${game.round} 题    保持 ${game.hold.toFixed(1)}s`);
+      for (let i = 0; i < 4; i++) {
+        const x = 125 + i * 280;
+        const y = 160;
+        const h = 360;
+        ctx.strokeStyle = "#2d5264";
+        ctx.lineWidth = 5;
+        ctx.strokeRect(x, y, 150, h);
+        ctx.fillStyle = "#55c7e6";
+        ctx.fillRect(x, y + h - game.level[i] / 100 * h, 150, game.level[i] / 100 * h);
+        ctx.strokeStyle = "#2fa66a";
+        ctx.lineWidth = 4;
+        const ty = y + h - game.target[i] / 100 * h;
+        ctx.beginPath();
+        ctx.moveTo(x - 18, ty);
+        ctx.lineTo(x + 168, ty);
+        ctx.stroke();
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.fillText(`${names[i]} 水位 ${Math.round(game.level[i])}`, x + 12, y + h + 32);
+      }
+      playerHud(game.score);
+    }
+
+    function drawSafe(game) {
+      clear("#f7f2e7", "#cfd6dc");
+      topBar("保险箱四环", `第 ${game.round} 道锁`);
+      for (let i = 0; i < 4; i++) {
+        const x = 190 + i * 300;
+        const y = 310;
+        const diff = angleDiff(game.angle[i], game.target[i]);
+        const stable = Math.abs(state.speeds[i] - state.baseSpeed) <= 8;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.strokeStyle = "#4d5968";
+        ctx.lineWidth = 16;
+        ctx.beginPath();
+        ctx.arc(0, 0, 82, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.strokeStyle = "#2fa66a";
+        ctx.lineWidth = 18;
+        // Dial angles use 0 degrees at the top; canvas arcs use 0 degrees at the right.
+        const targetA = (game.target[i] - 90) / 180 * Math.PI;
+        ctx.beginPath();
+        ctx.arc(0, 0, 82, targetA - .18, targetA + .18);
+        ctx.stroke();
+        ctx.rotate(game.angle[i] / 180 * Math.PI);
+        ctx.fillStyle = game.locked[i] ? "#2fa66a" : colors[i];
+        ctx.fillRect(-5, -78, 10, 76);
+        ctx.restore();
+        ctx.fillStyle = "#17202a";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.fillText(`${names[i]} ${game.locked[i] ? "已锁定" : "调整中"}`, x - 52, 430);
+        ctx.fillStyle = stable ? "#2fa66a" : "#657286";
+        ctx.font = "800 14px Microsoft YaHei";
+        ctx.fillText(`角度差 ${Math.round(Math.abs(diff))}°`, x - 52, 456);
+        ctx.fillText(`锁定 ${Math.round(Math.min(1, game.lockTime[i]) * 100)}%`, x - 52, 478);
+      }
+      panel(320, 520, 640, 48, "rgba(255,250,240,.82)");
+      ctx.fillStyle = "#17202a";
+      ctx.font = "900 20px Microsoft YaHei";
+      ctx.fillText("锁定条件：指针进入绿色区，并把速度保持在基准±8 内 1 秒", 355, 551);
+      playerHud(game.score);
+    }
+
+    function drawPinball(game) {
+      clear("#f4ead4", "#d5dce7");
+      topBar("弹珠发射台", `场上弹珠 ${game.balls.length}`);
+      ctx.strokeStyle = "#52606f";
+      ctx.lineWidth = 8;
+      ctx.strokeRect(70, 94, 1140, 520);
+      for (const target of pinTargets()) {
+        ctx.fillStyle = target.color;
+        ctx.beginPath();
+        ctx.arc(target.x, target.y, target.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fffaf0";
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        ctx.fillStyle = "#fffaf0";
+        ctx.font = "900 18px Microsoft YaHei";
+        ctx.textAlign = "center";
+        ctx.fillText(target.label, target.x, target.y + 7);
+      }
+      ctx.textAlign = "left";
+      for (let i = 0; i < 4; i++) {
+        const x = 145 + i * 300;
+        ctx.fillStyle = "#52606f";
+        ctx.beginPath();
+        ctx.moveTo(x - 50, 612);
+        ctx.lineTo(x + 50, 612);
+        ctx.lineTo(x + 24, 516);
+        ctx.lineTo(x - 24, 516);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = game.chargeTime[i] > 4 ? "#df5148" : "#f2a93b";
+        ctx.fillRect(x - 42, 625, 84 * Math.min(1, game.peak[i] / 100), 12);
+        ctx.strokeStyle = "#17202a";
+        ctx.strokeRect(x - 42, 625, 84, 12);
+      }
+      for (const ball of game.balls) {
+        ctx.fillStyle = colors[ball.player];
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, 13, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#fffaf0";
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      playerHud(game.score);
+    }
+  </script>
+</body>
+</html>
