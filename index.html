@@ -267,7 +267,49 @@
 
     @media (max-width: 720px) {
       .app { width: min(100vw - 18px, 720px); padding-top: 16px; }
-      .tabs { grid-template-columns: repeat(2, auto); }
+      .tabs {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        width: 100%;
+      }
+
+      .tabs button {
+        width: 100%;
+        padding: 9px 6px;
+        font-size: 12px;
+      }
+
+      aside {
+        padding: 12px;
+      }
+
+      .field {
+        margin-top: 8px;
+        padding-top: 8px;
+      }
+
+      .players {
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .player {
+        padding: 7px 8px;
+      }
+
+      .player-top {
+        margin-bottom: 3px;
+        font-size: 13px;
+      }
+
+      .keymap,
+      .actions {
+        margin-top: 8px;
+      }
+
+      .hint {
+        margin-top: 8px;
+        padding: 8px;
+      }
     }
   </style>
 </head>
