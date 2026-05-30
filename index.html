@@ -22,6 +22,12 @@
       --side-panel: 330px;
       --layout-gap: 10px;
       --pc-reserved-height: clamp(250px, 28vh, 320px);
+      --stage-shell-width: min(
+        calc((100vh - var(--pc-reserved-height)) * 16 / 9 + 16px),
+        calc(100vw - var(--side-panel) - var(--layout-gap) - 18px),
+        calc(1720px - var(--side-panel) - var(--layout-gap))
+      );
+      --content-width: calc(var(--stage-shell-width) + var(--side-panel) + var(--layout-gap));
     }
 
     * { box-sizing: border-box; }
@@ -51,6 +57,9 @@
       grid-template-columns: 1fr auto;
       gap: 14px;
       align-items: end;
+      width: var(--content-width);
+      margin-left: auto;
+      margin-right: auto;
       margin-bottom: 10px;
       padding: 12px 16px;
       border: 1px solid rgba(255,255,255,.16);
@@ -114,11 +123,7 @@
     }
 
     .stage-shell {
-      width: min(
-        calc((100vh - var(--pc-reserved-height)) * 16 / 9 + 16px),
-        calc(100vw - var(--side-panel) - var(--layout-gap) - 18px),
-        calc(1720px - var(--side-panel) - var(--layout-gap))
-      );
+      width: var(--stage-shell-width);
       padding: 8px;
       border: 1px solid rgba(255,255,255,.18);
       background:
@@ -270,6 +275,10 @@
         justify-content: stretch;
       }
 
+      header {
+        width: auto;
+      }
+
       .tabs {
         justify-content: start;
       }
@@ -393,6 +402,8 @@
   <script>
     const canvas = document.getElementById("stage");
     const ctx = canvas.getContext("2d");
+    const stageShell = document.querySelector(".stage-shell");
+    const sidePanel = document.querySelector("aside");
     const W = canvas.width;
     const H = canvas.height;
 
@@ -490,6 +501,7 @@
     });
 
     resetBtn.addEventListener("click", () => resetCurrentGame());
+    window.addEventListener("resize", () => syncPanelHeight());
 
     window.addEventListener("keydown", (event) => {
       const key = event.key.toLowerCase();
@@ -530,6 +542,7 @@
       modeHint.textContent = mode.hint;
       resetCurrentGame();
       updateControls();
+      syncPanelHeight();
     }
 
     function updateControls() {
@@ -547,6 +560,18 @@
 
     function resetCurrentGame() {
       state.game[state.mode] = createGameState(state.mode);
+      syncPanelHeight();
+    }
+
+    function syncPanelHeight() {
+      if (!stageShell || !sidePanel) return;
+      if (window.matchMedia("(min-width: 1061px)").matches) {
+        sidePanel.style.height = `${stageShell.getBoundingClientRect().height}px`;
+        sidePanel.style.overflowY = "auto";
+      } else {
+        sidePanel.style.height = "";
+        sidePanel.style.overflowY = "";
+      }
     }
 
     function createGameState(mode) {
@@ -1095,17 +1120,15 @@
       ctx.fillRect(0, barH - 2, W, 2);
       ctx.fillStyle = "#fffaf0";
       ctx.font = "900 30px Microsoft YaHei";
-      ctx.fillText(title, 34, 39);
+      const titleText = currentMode ? `${title}    ${currentMode.core}` : title;
+      fitText(titleText, 34, 39, W - 390);
       ctx.textAlign = "right";
       ctx.fillText(right, W - 34, 39);
       ctx.textAlign = "left";
       if (currentMode) {
-        ctx.fillStyle = "#9fe7d6";
-        ctx.font = "900 17px Microsoft YaHei";
-        fitText(`核心模式：${currentMode.core}`, 34, 66, W - 68);
         ctx.fillStyle = "#fff3c4";
-        ctx.font = "800 16px Microsoft YaHei";
-        fitText(`玩法规则：${currentMode.hint}`, 34, 90, W - 68);
+        ctx.font = "900 22px Microsoft YaHei";
+        fitText(`玩法规则：${currentMode.hint}`, 34, 82, W - 68);
       }
     }
 
